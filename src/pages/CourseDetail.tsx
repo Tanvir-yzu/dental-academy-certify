@@ -1,20 +1,22 @@
-
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Star, Clock, Users, BookOpen, PlayCircle, CheckCircle, Award, Video } from "lucide-react";
+import { Star, Clock, Users, BookOpen, PlayCircle, CheckCircle, Award, Video, Heart } from "lucide-react";
 import { Link } from "react-router-dom";
+import EnrollmentButton from "@/components/EnrollmentButton";
+import { useEnrollment } from "@/contexts/EnrollmentContext";
 
 const CourseDetail = () => {
   const { id } = useParams();
+  const { isEnrolled } = useEnrollment();
   const [activeTab, setActiveTab] = useState("overview");
 
   // Mock course data - in real app, this would come from your database
   const course = {
-    id: 1,
+    id: parseInt(id || "1"),
     title: "Advanced Root Canal Therapy",
     description: "Master endodontic procedures with hands-on video assignments and expert feedback from leading endodontists. This comprehensive course covers advanced techniques for successful root canal treatment.",
     price: "$299",
@@ -117,6 +119,8 @@ const CourseDetail = () => {
     }
   ];
 
+  const enrolled = isEnrolled(course.id);
+
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
@@ -163,6 +167,12 @@ const CourseDetail = () => {
                 {course.level}
               </Badge>
               <Badge variant="outline">{course.specialty}</Badge>
+              {enrolled && (
+                <Badge className="bg-green-600 text-white">
+                  <CheckCircle className="h-3 w-3 mr-1" />
+                  You're Enrolled
+                </Badge>
+              )}
             </div>
             
             <h1 className="text-3xl md:text-4xl font-bold mb-4">{course.title}</h1>
@@ -209,12 +219,34 @@ const CourseDetail = () => {
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                <Button className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-6">
-                  Enroll Now
-                </Button>
-                <Button variant="outline" className="w-full">
-                  Add to Wishlist
-                </Button>
+                {enrolled ? (
+                  <div className="space-y-3">
+                    <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4 text-center">
+                      <CheckCircle className="h-8 w-8 text-green-600 mx-auto mb-2" />
+                      <h4 className="font-semibold text-green-800 mb-1">You're Enrolled!</h4>
+                      <p className="text-sm text-green-700">Access your course content in the dashboard</p>
+                    </div>
+                    <Button asChild className="w-full bg-green-600 hover:bg-green-700">
+                      <Link to="/dashboard">
+                        <PlayCircle className="h-4 w-4 mr-2" />
+                        Continue Learning
+                      </Link>
+                    </Button>
+                  </div>
+                ) : (
+                  <>
+                    <EnrollmentButton 
+                      courseId={course.id}
+                      courseName={course.title}
+                      price={course.price}
+                      className="w-full text-lg py-6"
+                    />
+                    <Button variant="outline" className="w-full">
+                      <Heart className="h-4 w-4 mr-2" />
+                      Add to Wishlist
+                    </Button>
+                  </>
+                )}
                 
                 <div className="space-y-3 text-sm">
                   <h4 className="font-semibold">This course includes:</h4>

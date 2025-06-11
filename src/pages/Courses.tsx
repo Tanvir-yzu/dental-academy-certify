@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,11 +6,14 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Star, Clock, Users, Search, Filter } from "lucide-react";
 import { Link } from "react-router-dom";
+import EnrollmentButton from "@/components/EnrollmentButton";
+import { useEnrollment } from "@/contexts/EnrollmentContext";
 
 const Courses = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedLevel, setSelectedLevel] = useState("all");
   const [selectedSpecialty, setSelectedSpecialty] = useState("all");
+  const { isEnrolled } = useEnrollment();
 
   const courses = [
     {
@@ -241,6 +243,9 @@ const Courses = () => {
                     {course.featured && (
                       <Badge className="bg-blue-600 text-white">Featured</Badge>
                     )}
+                    {isEnrolled(course.id) && (
+                      <Badge className="bg-green-600 text-white">Enrolled</Badge>
+                    )}
                   </div>
                   {course.originalPrice && (
                     <div className="absolute top-4 right-4 bg-red-500 text-white px-2 py-1 rounded text-sm font-medium">
@@ -291,9 +296,12 @@ const Courses = () => {
                 </CardContent>
                 <CardFooter className="pt-0">
                   <div className="w-full space-y-2">
-                    <Button className="w-full bg-blue-600 hover:bg-blue-700">
-                      Enroll Now
-                    </Button>
+                    <EnrollmentButton 
+                      courseId={course.id}
+                      courseName={course.title}
+                      price={course.price}
+                      className="w-full"
+                    />
                     <Button variant="outline" className="w-full" asChild>
                       <Link to={`/course/${course.id}`}>
                         View Details

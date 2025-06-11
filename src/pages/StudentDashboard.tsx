@@ -7,35 +7,24 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BookOpen, Upload, Award, Clock, PlayCircle, CheckCircle, FileText, Download } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useEnrollment } from "@/contexts/EnrollmentContext";
 
 const StudentDashboard = () => {
   const [activeTab, setActiveTab] = useState("courses");
+  const { enrollments } = useEnrollment();
 
-  const enrolledCourses = [
-    {
-      id: 1,
-      title: "Advanced Root Canal Therapy",
-      progress: 75,
-      modules: 12,
-      completedModules: 9,
-      instructor: "Dr. Sarah Mitchell",
-      nextDeadline: "March 20, 2025",
-      status: "In Progress",
-      image: "https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=300&h=200&fit=crop"
-    },
-    {
-      id: 2,
-      title: "Cosmetic Veneer Application",
-      progress: 100,
-      modules: 8,
-      completedModules: 8,
-      instructor: "Dr. Emily Rodriguez",
-      completedDate: "February 15, 2025",
-      status: "Completed",
-      certificateAvailable: true,
-      image: "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=300&h=200&fit=crop"
-    }
-  ];
+  // Convert enrollments to the expected format
+  const enrolledCourses = enrollments.map(enrollment => ({
+    id: enrollment.courseId,
+    title: enrollment.courseName,
+    progress: enrollment.progress,
+    modules: 12, // Default value, could be dynamic
+    completedModules: Math.floor((enrollment.progress / 100) * 12),
+    instructor: "Dr. Sarah Mitchell", // Default value, could be dynamic
+    nextDeadline: enrollment.nextDeadline,
+    status: enrollment.status,
+    image: "https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=300&h=200&fit=crop"
+  }));
 
   const pendingAssignments = [
     {
@@ -113,6 +102,21 @@ const StudentDashboard = () => {
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Welcome back, Dr. Johnson!</h1>
           <p className="text-muted-foreground">Continue your learning journey and track your progress</p>
+          
+          {enrolledCourses.length === 0 && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mt-6">
+              <h3 className="text-lg font-semibold text-blue-800 mb-2">Start Your Learning Journey</h3>
+              <p className="text-blue-700 mb-4">
+                You haven't enrolled in any courses yet. Browse our catalog to find the perfect training for your needs.
+              </p>
+              <Button asChild className="bg-blue-600 hover:bg-blue-700">
+                <Link to="/courses">
+                  <BookOpen className="h-4 w-4 mr-2" />
+                  Browse Courses
+                </Link>
+              </Button>
+            </div>
+          )}
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
@@ -140,8 +144,8 @@ const StudentDashboard = () => {
                           <h3 className="text-xl font-semibold mb-2">{course.title}</h3>
                           <p className="text-muted-foreground">Instructor: {course.instructor}</p>
                         </div>
-                        <Badge variant={course.status === "Completed" ? "default" : "secondary"}>
-                          {course.status}
+                        <Badge variant={course.status === "completed" ? "default" : "secondary"}>
+                          {course.status === "completed" ? "Completed" : "In Progress"}
                         </Badge>
                       </div>
                       
@@ -155,18 +159,20 @@ const StudentDashboard = () => {
 
                       <div className="flex items-center justify-between">
                         <div className="text-sm text-muted-foreground">
-                          {course.status === "Completed" ? (
-                            <span>Completed: {course.completedDate}</span>
+                          {course.status === "completed" ? (
+                            <span>Completed</span>
                           ) : (
                             <span>Next deadline: {course.nextDeadline}</span>
                           )}
                         </div>
                         <div className="flex gap-2">
-                          <Button variant="outline" size="sm">
-                            <PlayCircle className="h-4 w-4 mr-2" />
-                            Continue Learning
+                          <Button variant="outline" size="sm" asChild>
+                            <Link to={`/course/${course.id}`}>
+                              <PlayCircle className="h-4 w-4 mr-2" />
+                              Continue Learning
+                            </Link>
                           </Button>
-                          {course.certificateAvailable && (
+                          {course.status === "completed" && (
                             <Button size="sm" className="bg-green-600 hover:bg-green-700">
                               <Award className="h-4 w-4 mr-2" />
                               View Certificate
@@ -213,7 +219,6 @@ const StudentDashboard = () => {
             </div>
           </TabsContent>
 
-          {/* Submissions Tab */}
           <TabsContent value="submissions" className="space-y-6">
             <div className="grid gap-4">
               {submittedWork.map((submission) => (
@@ -249,7 +254,6 @@ const StudentDashboard = () => {
             </div>
           </TabsContent>
 
-          {/* Certificates Tab */}
           <TabsContent value="certificates" className="space-y-6">
             <div className="grid gap-4">
               {certificates.map((certificate) => (
