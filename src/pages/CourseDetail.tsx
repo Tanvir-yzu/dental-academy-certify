@@ -331,7 +331,17 @@ const CourseDetail = () => {
                         </span>
                       </CardDescription>
                     </div>
-                    <Badge variant="outline">Module {module.module}</Badge>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline">Module {module.module}</Badge>
+                      {enrolled && (
+                        <Button size="sm" asChild className="bg-blue-600 hover:bg-blue-700">
+                          <Link to={`/course/${course.id}/module/${module.module}`}>
+                            <PlayCircle className="h-3 w-3 mr-1" />
+                            Watch
+                          </Link>
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent>

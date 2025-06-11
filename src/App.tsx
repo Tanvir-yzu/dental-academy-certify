@@ -9,6 +9,7 @@ import { EnrollmentProvider } from "@/contexts/EnrollmentContext";
 import Index from "./pages/Index";
 import Courses from "./pages/Courses";
 import CourseDetail from "./pages/CourseDetail";
+import CourseLesson from "./pages/CourseLesson";
 import VerifyCertificate from "./pages/VerifyCertificate";
 import Contact from "./pages/Contact";
 import About from "./pages/About";
@@ -31,6 +32,7 @@ const App: React.FC = () => {
               <Route path="/" element={<Index />} />
               <Route path="/courses" element={<Courses />} />
               <Route path="/course/:id" element={<CourseDetail />} />
+              <Route path="/course/:courseId/module/:moduleId" element={<CourseLesson />} />
               <Route path="/verify-certificate" element={<VerifyCertificate />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/about" element={<About />} />
